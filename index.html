@@ -90,7 +90,7 @@
           if(available > 0) {
             // Request some sound data from the callback function.
             var soundData = new Float32Array(available);
-            readFn(soundData);
+            readFn(soundData,"square");
 
             // Writting the data.
             written = audio.mozWriteAudio(soundData);
@@ -109,14 +109,15 @@
       var frequency = 0, currentSoundSample;
       var sampleRate = 44100;
 
-      function requestSoundData(soundData) {
+      function requestSoundData(soundData,wavetype) {
         if (!frequency) { 
           return; // no sound selected
         }
 
         var k = 2* Math.PI * frequency / sampleRate;
         for (var i=0, size=soundData.length; i<size; i++) {
-          soundData[i] = Math.sin(k * currentSoundSample++);
+          if (wavetype == "sine") soundData[i] = Math.sin(k * currentSoundSample++);
+          else soundData[i] = parseInt(Math.sin(k * currentSoundSample++));
         }        
       }
 
