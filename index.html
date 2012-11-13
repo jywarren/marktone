@@ -1,130 +1,55 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>JavaScript Audio Write Example</title>
+    <title>Marktone | synth markup</title>
     <script src="jquery.min.js"></script>
-    <style> body { font-family:courier; } </style>
+    <script src="generator.js"></script>
+    <script src="marktone.js"></script>
+    <style>
+      html {
+        background:#333;
+      }
+      body { 
+        font-family:courier; 
+        color:#3f9;
+        margin:0;
+      }
+      a { color:#cf9; }
+      textarea {
+        width:100%;
+        padding:10px 0;
+        background:#222;
+        color:#3f9;
+        border:none;
+        border-bottom:2px solid #111;
+        font-family:courier,courier new; 
+        font-size:40px;
+      } 
+      #info {
+        padding:10px;
+      }
+      #key {
+        font-weight:normal;
+      }
+    </style>
   </head>
   <body>
 
-    <textarea id="score" cols="30" rows="6" style="font-size:40px;font-family:courier;">bb s b s </textarea>
+    <textarea id="score" rows="6">aa s b s 
+b b b b </textarea>
     <br />
 
-    <h2 id="key">...</h2>
+    <div id="info">
+      <h2 id="key">...</h2>
+      <p>Marktone: text-based tone generation in JavaScript; <a href="https://github.com/jywarren/marktone">source on Github</a> | <a href="mailto:jeff@unterbahn.com">email</a></p>
+    </div>
 
     <script type="text/javascript">      
 
+      (function() {
+        $M.initialize()
+      })()
 
-      $M = {
-        time: 0,
-        beats: 1, // beat # counting from start
-        beat: 1, // beat # counting from start of measure
-        f: 4.00, // smallest beat; 8.00 is an eigth of a second
-        bpm: 100, // # of beats per minute
-        measure: 16,
-        initialize: function() {
-          this.start = new Date()
-          setInterval($M.draw,1000/$M.f)
-        },
-        draw: function() {
-          $M.time = new Date() - $M.start
-          $M.whole_note()
-          $M.beats++
-          $M.beat++
-          if ($M.beat > $M.measure) {
-            $M.beat = 1
-          }
-        },
-        whole_note: function() {
-          //setTimeout($M.stop,$M.bpm)
-          $M.stop()
-          score = $('#score').val().split('\r')[0]
-          key = score.split('')[this.beat]
-          note = $M.instrument[key]
-          $('#key').html(key)
-          if (note != 0) $M.play(note)
-        },
-        play: function(f) {
-          currentSoundSample = 0
-          frequency = f
-        },
-        stop: function() {
-          frequency = 0
-        },
-        instrument: {
-          ' ': 0,
-          b: 250,
-          s: 300,
-          g: 350,
-        }
-      }
-
-      function AudioDataDestination(sampleRate, readFn) {
-        // Initialize the audio output.
-        var audio = new Audio();
-        audio.mozSetup(1, sampleRate);
-
-        var currentWritePosition = 0;
-        var prebufferSize = sampleRate / 2; // buffer 500ms
-        var tail = null, tailPosition;
-
-        // The function called with regular interval to populate 
-        // the audio output buffer.
-        setInterval(function() {
-          var written;
-          // Check if some data was not written in previous attempts.
-          if(tail) {
-            written = audio.mozWriteAudio(tail.subarray(tailPosition));
-            currentWritePosition += written;
-            tailPosition += written;
-            if(tailPosition < tail.length) {
-              // Not all the data was written, saving the tail...
-              return; // ... and exit the function.
-            }
-            tail = null;
-          }
-
-          // Check if we need add some data to the audio output.
-          var currentPosition = audio.mozCurrentSampleOffset();
-          var available = currentPosition + prebufferSize - currentWritePosition;
-          if(available > 0) {
-            // Request some sound data from the callback function.
-            var soundData = new Float32Array(available);
-            readFn(soundData,"square");
-
-            // Writting the data.
-            written = audio.mozWriteAudio(soundData);
-            if(written < soundData.length) {
-              // Not all the data was written, saving the tail.
-              tail = soundData;
-              tailPosition = written;
-            }
-            currentWritePosition += written;
-          }
-        }, 100);
-      }
-
-      // Control and generate the sound.
-
-      var frequency = 0, currentSoundSample;
-      var sampleRate = 44100;
-
-      function requestSoundData(soundData,wavetype) {
-        if (!frequency) { 
-          return; // no sound selected
-        }
-
-        var k = 2* Math.PI * frequency / sampleRate;
-        for (var i=0, size=soundData.length; i<size; i++) {
-          if (wavetype == "sine") soundData[i] = Math.sin(k * currentSoundSample++);
-          else soundData[i] = parseInt(Math.sin(k * currentSoundSample++));
-        }        
-      }
-
-      var audioDestination = new AudioDataDestination(sampleRate, requestSoundData);
-
-      $M.initialize()
-
-  </script>
+    </script>
   </body>
 </html>
