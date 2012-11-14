@@ -51,13 +51,19 @@ $M = {
     var k = 2* Math.PI * $M.frequency[i] / $M.sampleRate;
     for (var i=0, size=soundData.length; i<size; i++) {
       if (wavetype == "sine") soundData[i] = Math.sin(k * $M.currentSoundSample++);
-      else soundData[i] = parseInt(Math.sin(k * $M.currentSoundSample++));
+      else {
+        if (Math.sin(k * $M.currentSoundSample++) > 0) soundData[i] = 1
+        else soundData[i] = -1 
+      }
     }        
   },
   instrument: {
     ' ': 0,
     a: 350,
     b: 250,
+    c: 150,
+    d: 50,
+    e: 20,
     g: 400,
     s: 300,
   }
